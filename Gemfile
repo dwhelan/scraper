@@ -1,0 +1,8 @@
+gem 'capybara'
+gem 'fakeweb'
+gem 'json'
+#gem 'nokogiri'
+gem 'rake'
+gem 'rspec'
+gem 'vcr'
+gem 'selenium-webdriver'
