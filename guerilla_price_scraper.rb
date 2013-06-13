@@ -18,24 +18,20 @@ class GuerillaPriceScraper
     prices = {}
 
     # Sequence option selections for maximum price variability by placing most price sensitive options later
-    finishes.each do |finish|
-      sides.each do |side|
-        sizes.each do |size|
-          quantities.each do |quantity|
-            prices[[quantity, size, side, finish]] = price_for('Quantity' => quantity, 'Size' => size, 'Colors' => side, 'Finishing' => finish)
+    lists[3].options.each do |finish|
+      select_option(lists[3], finish)
+      lists[2].options.each do |side|
+        select_option(lists[2], side)
+        lists[1].options.each do |size|
+          select_option(lists[1], size)
+          lists[0].options.each do |quantity|
+            select_option(lists[0], quantity)
+            prices[[quantity, size, side, finish]] = price
           end
         end
       end
     end
     prices
-  end
-
-  def price_for(options)
-    options.each do |key, option|
-      select_option(lists[key], option)
-    end
-
-    price
   end
 
   def select_option(list, option)
@@ -62,7 +58,7 @@ class GuerillaPriceScraper
 
   def lists
     unless @lists
-      @lists = {}
+      @lists = []
 
       all('div.attributeDiv').each do |attribute_div|
         extract_list(attribute_div)
@@ -74,23 +70,7 @@ class GuerillaPriceScraper
   def extract_list(attribute_div)
     name = attribute_div.find('div.attributeName').text.sub(/[[:punct:]]\Z/, '')
     select = attribute_div.find('select.calcItem')
-    @lists[name] = List.new(select)
-  end
-
-  def quantities
-    lists['Quantity'].options
-  end
-
-  def sizes
-    lists['Size'].options
-  end
-
-  def sides
-    lists['Colors'].options
-  end
-
-  def finishes
-    lists['Finishing'].options
+    @lists << List.new(select)
   end
 
   def wait_until
