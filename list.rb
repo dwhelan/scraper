@@ -7,11 +7,12 @@ class List
 
   private
 
-  attr_reader :list
+  attr_reader :name, :list
 
   public
 
-  def initialize(list)
+  def initialize(name, list)
+    @name = name
     @list = list
   end
 

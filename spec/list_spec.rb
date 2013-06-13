@@ -10,7 +10,9 @@ describe List do
     @list = Capybara.current_session.all('#id')[0]
   end
 
-  subject { List.new(@list) }
+  subject { List.new('foo', @list) }
+
+  its(:name) { should == 'foo'}
 
   describe '#options' do
     its(:options) { should == %w(a b c) }

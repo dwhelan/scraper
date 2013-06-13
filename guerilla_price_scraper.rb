@@ -70,7 +70,7 @@ class GuerillaPriceScraper
   def extract_list(attribute_div)
     name = attribute_div.find('div.attributeName').text.sub(/[[:punct:]]\Z/, '')
     select = attribute_div.find('select.calcItem')
-    list = List.new(select)
+    list = List.new(name, select)
     list.add_observer(self, :list_option_changed)
     @lists << list
   end
