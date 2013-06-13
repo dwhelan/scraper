@@ -12,13 +12,17 @@ class GuerillaPriceScraper
     prices
   end
 
+  private
+
   def prices
     prices = {}
-    quantities.each do |quantity|
-      sizes.each do |size|
-        sides.each do |side|
-          finishes.each do |finish|
-            prices[[quantity, size, side, finish]] = price_for(quantity: quantity, size: size, side: side, finish: finish)
+
+    # Sequence option selections for maximum price variability by placing most price sensitive options later
+    finishes.each do |finish|
+      sides.each do |side|
+        sizes.each do |size|
+          quantities.each do |quantity|
+            prices[[quantity, size, side, finish]] = price_for('Quantity' => quantity, 'Size' => size, 'Colors' => side, 'Finishing' => finish)
           end
         end
       end
@@ -26,28 +30,30 @@ class GuerillaPriceScraper
     prices
   end
 
-  private
-
   def price_for(options)
     options.each do |key, option|
-      select_list_option(lists[key], option)
+      select_option(lists[key], option)
     end
 
     price
   end
 
-  def select_list_option(list, option)
-    old_price_container = price_container
-    wait_until { price_updated(old_price_container) } if list.select(option)
+  def select_option(list, option)
+    old_price = price_container
+    wait_until { price_updated_from(old_price) } if list.select(option)
   end
 
-  def price_updated(old_price_container)
-    new_price_container = price_container
-    new_price_container != old_price_container and new_price_container != ''
+  LOADING_TEXT = ''
+
+  def price_updated_from(old_price)
+    new_price = price_container
+
+    #TODO Does not handle situation where a new set of options has the same price as the previous set
+    new_price != old_price and new_price != LOADING_TEXT
   end
 
   def price_container
-    page.find('#updateDiv').text
+    find('#updateDiv').text
   end
 
   def price
@@ -56,31 +62,35 @@ class GuerillaPriceScraper
 
   def lists
     unless @lists
-      list_elements = all('.calcItem')
-      @lists ||= {
-        quantity: List.new(list_elements[0]),
-        size:     List.new(list_elements[1]),
-        side:     List.new(list_elements[2]),
-        finish:   List.new(list_elements[3]),
-    }
+      @lists = {}
+
+      all('div.attributeDiv').each do |attribute_div|
+        extract_list(attribute_div)
+      end
     end
     @lists
   end
 
+  def extract_list(attribute_div)
+    name = attribute_div.find('div.attributeName').text.sub(/[[:punct:]]\Z/, '')
+    select = attribute_div.find('select.calcItem')
+    @lists[name] = List.new(select)
+  end
+
   def quantities
-    lists[:quantity].options
+    lists['Quantity'].options
   end
 
   def sizes
-    lists[:size].options
+    lists['Size'].options
   end
 
   def sides
-    lists[:side].options
+    lists['Colors'].options
   end
 
   def finishes
-    lists[:finish].options
+    lists['Finishing'].options
   end
 
   def wait_until
