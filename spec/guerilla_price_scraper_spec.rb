@@ -3,7 +3,7 @@ require './spec/spec_helper'
 
 describe GuerillaPriceScraper, :vcr do
 
-  describe 'business cards' do
+  describe 'business cards', :vcr do
 
       before(:all) do
         @prices = GuerillaPriceScraper.new.scrape('business-cards-14-pt')

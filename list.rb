@@ -1,6 +1,9 @@
 require 'capybara'
+require 'observer'
 
 class List
+
+  include Observable
 
   private
 
@@ -19,6 +22,9 @@ class List
   def select(option)
     previous_value = list.value
     list.select(option)
-    list.value != previous_value
+    if list.value != previous_value
+      changed
+      notify_observers
+    end
   end
 end

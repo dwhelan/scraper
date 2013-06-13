@@ -1,5 +1,6 @@
 require './list'
 require './spec/spec_helper'
+require 'observer'
 
 describe List do
 
@@ -22,12 +23,29 @@ describe List do
       @list.value.should == '1'
     end
 
-    it 'should return "true" when new option selected' do
-      subject.select('b').should be_true
+  end
+
+  describe 'should be observable' do
+    class Observer
+      attr_reader :fired
+      def update() @fired = true end
     end
 
-    it 'should return "false" when option already selected' do
-      subject.select('a').should be_false
+    before do
+      subject.select('a')
+      @observer = Observer.new
+      subject.add_observer(@observer)
+    end
+
+    it 'should notify when new option selected' do
+      subject.select('b')
+      @observer.fired.should be_true
+    end
+
+    it 'should not notify when option already selected' do
+      subject.select('a')
+      @observer.fired.should be_false
     end
   end
+
 end
