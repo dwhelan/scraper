@@ -27,6 +27,12 @@ describe List do
 
   end
 
+  describe '#text' do
+    before { subject.select('a') }
+
+    its(:selection) { should == 'a' }
+  end
+
   describe 'should be observable' do
     class Observer
       attr_reader :fired

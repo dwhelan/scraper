@@ -7,7 +7,7 @@ class List
 
   private
 
-  attr_reader :name, :list
+  attr_reader :name, :list, :selection
 
   public
 
@@ -23,6 +23,7 @@ class List
   def select(option)
     previous_value = list.value
     list.select(option)
+    @selection = option
     if list.value != previous_value
       changed
       notify_observers
