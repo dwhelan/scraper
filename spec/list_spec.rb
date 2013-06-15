@@ -34,25 +34,29 @@ describe List do
   end
 
   describe 'should be observable' do
-    class Observer
-      attr_reader :fired
-      def update() @fired = true end
+    let(:observer) do
+      observer = Object.new
+
+      class << observer
+        attr_reader :fired
+        def update() @fired = true end
+      end
+      observer
     end
 
     before do
       subject.select('a')
-      @observer = Observer.new
-      subject.add_observer(@observer)
+      subject.add_observer(observer)
     end
 
     it 'should notify when new option selected' do
       subject.select('b')
-      @observer.fired.should be_true
+      observer.fired.should be_true
     end
 
     it 'should not notify when option already selected' do
       subject.select('a')
-      @observer.fired.should be_false
+      observer.fired.should be_false
     end
   end
 

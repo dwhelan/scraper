@@ -48,16 +48,14 @@ class GuerillaPriceScraper
   end
 
   def lists
-    unless @lists
-      @lists = ListCollection.new
+    lists = ListCollection.new
 
-      all('div.attributeDiv').each do |attribute_div|
-        @lists << extract_list(attribute_div)
-      end
-
-      @lists.add_observer(self, :on_list_selections_complete)
+    all('div.attributeDiv').each do |attribute_div|
+      lists << extract_list(attribute_div)
     end
-    @lists
+
+    lists.add_observer(self, :on_list_selections_complete)
+    lists
   end
 
   def extract_list(attribute_div)

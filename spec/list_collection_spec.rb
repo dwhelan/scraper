@@ -33,22 +33,28 @@ describe ListCollection do
     context('after selecting "a" in list1 and "x" in list2') { its(:selections) { should == {'list1' => 'a', 'list2' => 'x'} } }
   end
 
-  it '#select_all_list_combinations' do
-    class Observer
-      attr_reader :fired, :all_selections
-      def initialize() @all_selections = [] end
-      def update(selections) all_selections << selections end
+  describe '#select_all_list_combinations' do
+    let(:observer) do
+      observer = Object.new
+
+      class << observer
+        attr_reader :fired
+        def update(selections) all_selections << selections end
+        def all_selections() @all_selections ||= [] end
+      end
+      observer
     end
 
-    observer = Observer.new
-    subject.add_observer(observer)
-    subject.select_all_list_combinations
-    observer.all_selections.should == [
-      { 'list1' => 'a', 'list2' => 'x' },
-      { 'list1' => 'a', 'list2' => 'y' },
-      { 'list1' => 'b', 'list2' => 'x' },
-      { 'list1' => 'b', 'list2' => 'y' },
-    ]
+    it 'should observe all list combinations being selected' do
+      subject.add_observer(observer)
+      subject.select_all_list_combinations
+      observer.all_selections.should == [
+        { 'list1' => 'a', 'list2' => 'x' },
+        { 'list1' => 'a', 'list2' => 'y' },
+        { 'list1' => 'b', 'list2' => 'x' },
+        { 'list1' => 'b', 'list2' => 'y' },
+      ]
+    end
   end
 
 end
