@@ -5,8 +5,6 @@ class List
 
   include Observable
 
-  private
-
   attr_reader :name, :list, :selection
 
   public

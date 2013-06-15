@@ -1,4 +1,5 @@
 require './list'
+require './list_collection'
 require 'capybara'
 
 class GuerillaPriceScraper
@@ -22,31 +23,21 @@ class GuerillaPriceScraper
     }
   end
 
+  def on_list_selections_complete(selections)
+    @prices[selections] = price
+  end
+
   private
 
   def prices
-    prices = {}
+    @prices = {}
 
-    # Sequence option selections for maximum price variability by placing most price sensitive options later
-    lists[3].options.each do |finish|
-      lists[3].select(finish)
-      lists[2].options.each do |side|
-        lists[2].select(side)
-        lists[1].options.each do |size|
-          lists[1].select(size)
-          lists[0].options.each do |quantity|
-            lists[0].select(quantity)
-            prices[[quantity, size, side, finish]] = price
-          end
-        end
-      end
-    end
-    prices
+    lists.select_all_list_combinations
+
+    @prices
   end
 
-
   LOADING_TEXT = ''
-
 
   def price_container
     find('#updateDiv').text
@@ -58,11 +49,13 @@ class GuerillaPriceScraper
 
   def lists
     unless @lists
-      @lists = []
+      @lists = ListCollection.new
 
       all('div.attributeDiv').each do |attribute_div|
-        extract_list(attribute_div)
+        @lists << extract_list(attribute_div)
       end
+
+      @lists.add_observer(self, :on_list_selections_complete)
     end
     @lists
   end
@@ -72,7 +65,7 @@ class GuerillaPriceScraper
     select = attribute_div.find('select.calcItem')
     list = List.new(name, select)
     list.add_observer(self, :list_option_changed)
-    @lists << list
+    list
   end
 
   def wait_until
