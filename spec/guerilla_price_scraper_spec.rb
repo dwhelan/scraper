@@ -6,31 +6,17 @@ describe GuerillaPriceScraper, :vcr do
   describe 'business cards', :vcr do
 
       let(:selections) {{
-        'Quantity'  => '100',
-        'Size'      => '2in. x 3.5in. Business Cards',
-        'Colors'    => '4/0 - Full Color Front, No Back',
-        'Finishing' => 'Standard'\
+        'Quantity:'  => '100',
+        'Size:'      => '2in. x 3.5in. Business Cards',
+        'Colors:'    => '4/0 - Full Color Front, No Back',
+        'Finishing:' => 'Standard',
       }}
 
       before(:all) { @prices = GuerillaPriceScraper.new.scrape('business-cards-14-pt') }
 
-      specify do
-        @prices.should include selections => 4595
-      end
-
-      specify do
-        selections['Quantity'] = '250'
-        @prices.should include selections => 4995
-      end
-
-      specify do
-        selections['Colors'] = '4/4 - Full Color Both Sides'
-        @prices.should include selections => 4995
-      end
-
-      specify do
-        selections['Finishing'] = 'UV Coating (Front Only)'
-        @prices.should include selections => 5595
-      end
+      context('base price')                  {                                                                    it { @prices[selections].should == 4595 } }
+      context('for a quantity of 250 price') { before { selections['Quantity:']  = '250' };                       it { @prices[selections].should == 4995 } }
+      context('for colors of 4/4 price')   { before { selections['Colors:']    = '4/4 - Full Color Both Sides' }; it { @prices[selections].should == 4995 } }
+      context('for UV coating price')      { before { selections['Finishing:'] = 'UV Coating (Front Only)' };     it { @prices[selections].should == 5595 } }
   end
 end

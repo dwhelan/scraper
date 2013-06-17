@@ -13,7 +13,7 @@ class GuerillaPriceScraper
     prices
   end
 
-  def list_option_changed
+  def on_list_option_changed
     old_price = price_container
     wait_until {
       new_price = price_container
@@ -51,7 +51,7 @@ class GuerillaPriceScraper
     lists = ListCollection.new
 
     all('div.attributeDiv').each do |attribute_div|
-      lists << extract_list(attribute_div)
+      lists.insert(extract_list(attribute_div))
     end
 
     lists.add_observer(self, :on_list_selections_complete)
@@ -59,10 +59,11 @@ class GuerillaPriceScraper
   end
 
   def extract_list(attribute_div)
-    name = attribute_div.find('div.attributeName').text.sub(/[[:punct:]]\Z/, '')
+    name   = attribute_div.find('div.attributeName').text
     select = attribute_div.find('select.calcItem')
-    list = List.new(name, select)
-    list.add_observer(self, :list_option_changed)
+    list   = List.new(name, select)
+
+    list.add_observer(self, :on_list_option_changed)
     list
   end
 

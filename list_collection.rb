@@ -15,8 +15,8 @@ class ListCollection
     @lists = []
   end
 
-  def << (list)
-    @lists << list
+  def insert(list)
+    @lists.insert(0, list)
   end
 
   def select_all_list_combinations(x=lists)

@@ -20,8 +20,8 @@ describe ListCollection do
   let(:list2) { FakeList.new('list2', %w(x y)) }
 
   before do
-    subject << list1
-    subject << list2
+    subject.insert list2
+    subject.insert list1
   end
 
   describe '#selections' do
