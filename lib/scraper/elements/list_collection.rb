@@ -1,6 +1,9 @@
 require 'capybara'
 require 'observer'
 
+module Scraper
+  module Elements
+
 class ListCollection
 
   include Observable
@@ -36,4 +39,6 @@ class ListCollection
     Hash[lists.map{|list| [list.name, list.selection]}]
   end
 
+end
+  end
 end
