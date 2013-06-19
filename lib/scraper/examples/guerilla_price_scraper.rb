@@ -18,19 +18,7 @@ module Scraper
         @prices
       end
 
-      def on_list_selections_complete(selections)
-        wait_for_price_to_change
-        @prices ||= {}
-        @prices[selections] = price
-      end
-
-      private
-
-      attr_accessor :old_price_container
-
-      LOADING_TEXT = ''
-
-      def wait_for_price_to_change
+      def on_list_option_changed
         old_price = old_price_container
         wait_until {
           new_price = price_container
@@ -40,6 +28,17 @@ module Scraper
         }
         old_price_container = price_container
       end
+
+      def on_list_selections_complete(selections)
+        @prices ||= {}
+        @prices[selections] = price
+      end
+
+      private
+
+      attr_accessor :old_price_container
+
+      LOADING_TEXT = ''
 
       def price_container
         @price_container_div ||= find('#updateDiv')
@@ -56,6 +55,7 @@ module Scraper
 
         all('div.attributeDiv').each do |attribute_div|
           list = find_list(attribute_div)
+          list.add_observer(self, :on_list_option_changed)
           lists.insert(list)
         end
 
