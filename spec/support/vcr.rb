@@ -2,7 +2,7 @@ require 'vcr'
 
 VCR.configure do |c|
   c.cassette_library_dir = File.join(Dir.pwd, 'spec', 'vcr')
-  c.hook_into :fakeweb
+  #c.hook_into :fakeweb
   c.configure_rspec_metadata!
   c.allow_http_connections_when_no_cassette = true
 end

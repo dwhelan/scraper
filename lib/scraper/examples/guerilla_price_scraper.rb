@@ -13,65 +13,64 @@ module Scraper
         Capybara.default_driver = :selenium
         Capybara.default_wait_time = 10
         visit "http://www.guerillaprinting.ca/#{page_path}"
-        prices
+        lists.select_all_list_combinations
+
+        @prices
       end
 
-      def on_list_option_changed
-        old_price = price_container
+      def on_list_selections_complete(selections)
+        wait_for_price_to_change
+        @prices ||= {}
+        @prices[selections] = price
+      end
+
+      private
+
+      attr_accessor :old_price_container
+
+      LOADING_TEXT = ''
+
+      def wait_for_price_to_change
+        old_price = old_price_container
         wait_until {
           new_price = price_container
 
           #TODO Does not handle situation where a new set of options has the same price as the previous set
           new_price != old_price and new_price != LOADING_TEXT
         }
+        old_price_container = price_container
       end
-
-      def on_list_selections_complete(selections)
-        @prices[selections] = price
-      end
-
-      private
-
-      def prices
-        @prices = {}
-
-        lists.select_all_list_combinations
-
-        @prices
-      end
-
-      LOADING_TEXT = ''
 
       def price_container
-        find('#updateDiv').text
+        @price_container_div ||= find('#updateDiv')
+        @price_container_div.text
       end
 
       def price
-        find('div#total div.calcPrice').text.gsub(/\D/, '').to_i
+        @price_div ||= find('div#total div.calcPrice')
+        @price_div.text
       end
 
       def lists
         lists = Scraper::Elements::ListCollection.new
 
         all('div.attributeDiv').each do |attribute_div|
-          lists.insert(extract_list(attribute_div))
+          list = find_list(attribute_div)
+          lists.insert(list)
         end
 
         lists.add_observer(self, :on_list_selections_complete)
         lists
       end
 
-      def extract_list(attribute_div)
+      def find_list(attribute_div)
         name   = attribute_div.find('div.attributeName').text
         select = attribute_div.find('select.calcItem')
-        list   = Scraper::Elements::List.new(name, select)
-
-        list.add_observer(self, :on_list_option_changed)
-        list
+        Scraper::Elements::List.new(name, select)
       end
 
       def wait_until
-        require "timeout"
+        require 'timeout'
         Timeout.timeout(Capybara.default_wait_time) do
           sleep(0.1) until yield
         end

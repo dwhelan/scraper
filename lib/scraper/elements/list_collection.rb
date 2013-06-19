@@ -24,7 +24,7 @@ class ListCollection
 
   def select_all_list_combinations(x=lists)
     list = x[0]
-    list.options.each do |option|
+    list.options.reverse.each do |option|
       list.select(option)
       if x.length > 1
         select_all_list_combinations(x.slice(1..-1))

@@ -1,6 +1,5 @@
 require './lib/scraper/elements/list'
-require './spec/support/vcr'
-require './spec/support/capybara'
+require './spec/spec_helper'
 require 'observer'
 
 module Scraper::Elements
@@ -17,7 +16,18 @@ module Scraper::Elements
     its(:name) { should == 'foo'}
 
     describe '#options' do
-      its(:options) { should == %w(a b c) }
+      its(:options) { should == %w(a b) }
+      it 'should cache options' do
+        subject.options
+        @list.should_not_receive(:all)
+        subject.options
+      end
+    end
+
+    describe '#max_options' do
+      describe('should default to Scraper configuration value') { its(:max_options) { should == Scraper.configuration.max_list_options }}
+      context('with max_options = 1')   { before {subject.max_options = 1};   its(:options) { should == %w(a) } }
+      context('with max_options = nil') { before {subject.max_options = nil}; its(:options) { should == %w(a b c) } }
     end
 
     describe '#select' do
