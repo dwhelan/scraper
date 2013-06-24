@@ -4,41 +4,47 @@ require 'observer'
 module Scraper
   module Elements
 
-class ListCollection
+    class ListCollection
 
-  include Observable
+      include Observable
 
-  private
+      private
 
-  attr_reader :lists
+      attr_reader :lists
 
-  public
+      public
 
-  def initialize()
-    @lists = []
-  end
-
-  def insert(list)
-    @lists.insert(0, list)
-  end
-
-  def select_all_list_combinations(x=lists)
-    list = x[0]
-    list.options.reverse.each do |option|
-      list.select(option)
-      if x.length > 1
-        select_all_list_combinations(x.slice(1..-1))
-      else
-        changed
-        notify_observers(selections)
+      def initialize
+        @lists = []
       end
+
+      def insert(list)
+        @lists.insert(0, list)
+      end
+
+      def select_all_list_combinations
+        _select_all_list_combinations(lists)
+      end
+
+      def selections
+        Hash[lists.map{|list| [list.name, list.selection]}]
+      end
+
+      private
+
+      def _select_all_list_combinations(lists_to_enumerate)
+        list = lists_to_enumerate[0]
+        list.options.reverse.each do |option|
+          list.select(option)
+          if lists_to_enumerate.length > 1
+            _select_all_list_combinations(lists_to_enumerate.slice(1..-1))
+          else
+            changed
+            notify_observers(selections)
+          end
+        end
+      end
+
     end
-  end
-
-  def selections
-    Hash[lists.map{|list| [list.name, list.selection]}]
-  end
-
-end
   end
 end

@@ -1,6 +1,5 @@
+require './spec/spec_helper'
 require './lib/scraper/examples/guerilla_price_scraper'
-require './spec/support/vcr'
-require './spec/support/scraper'
 
 module Scraper::Examples
 

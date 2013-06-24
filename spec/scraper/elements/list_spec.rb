@@ -51,7 +51,7 @@ module Scraper::Elements
 
         class << observer
           attr_reader :fired
-          def update() @fired = true end
+          def update(list) @fired = true end
         end
         observer
       end

@@ -29,14 +29,14 @@ module Scraper
         @selection = option
         if list.value != previous_value
           changed
-          notify_observers
+          notify_observers(self)
         end
       end
 
       private
 
       def scrape_options
-        options = list.all('option').map { |option| option.text }
+        options = list.all('option').map { |option| option.text }.reject{|option| option =~ /\- *Select *\-/ }
         options = options[0, max_options] if max_options
         options
       end

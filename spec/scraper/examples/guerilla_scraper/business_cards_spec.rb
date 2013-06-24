@@ -1,9 +1,9 @@
+require './spec/spec_helper'
 require './lib/scraper/examples/guerilla_price_scraper'
-require './spec/support/vcr'
 
 module Scraper::Examples
 
-  describe GuerillaPriceScraper, :vcr do
+  describe GuerillaPriceScraper, js: true do
 
     describe 'business cards', :vcr do
 
