@@ -5,7 +5,6 @@ require 'capybara'
 
 require 'capybara/poltergeist'
 
-
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new(app, {debug: false})
 end
@@ -13,7 +12,7 @@ end
 Capybara.current_driver = :poltergeist
 Capybara.javascript_driver = :poltergeist
 
-Capybara.current_driver = :selenium
+#Capybara.current_driver = :selenium
 
 module Scraper
   module Examples
@@ -31,7 +30,7 @@ module Scraper
       end
 
       def on_list_option_changed(list)
-        puts "#{list.name} - selected #{list.selection}"
+        #puts "#{list.name} - selected #{list.selection}"
         old_price = old_price_container
         keep_waiting_prices = [old_price, LOADING_TEXT, '']
         wait_until {
@@ -39,16 +38,18 @@ module Scraper
 
           #TODO Does not handle situation where a new set of options has the same price as the previous set
           keep_waiting = keep_waiting_prices.include?(new_price)
-          puts "for #{lists.selections}; old_price=#{old_price}, new_price=#{new_price}; keep_waiting=#{keep_waiting}"
+          #puts "for #{lists.selections}; old_price=#{old_price}, new_price=#{new_price}; keep_waiting=#{keep_waiting}"
           !keep_waiting
         }
         @old_price_container = price_container
+      rescue Timeout::Error
+        puts 'timeout warning - just using the last scraped value'
       end
 
       def on_list_selections_complete(selections)
         @prices ||= {}
         @prices[selections] = price
-        puts "saved price for #{selections}; price=#{@prices[selections]}"
+        #puts "saved price for #{selections}; price=#{@prices[selections]}"
       end
 
       private
