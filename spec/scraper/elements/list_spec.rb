@@ -45,30 +45,33 @@ module Scraper::Elements
       its(:selection) { should == 'a' }
     end
 
-    describe 'should be observable' do
-      let(:observer) do
-        observer = Object.new
-
-        class << observer
-          attr_reader :fired
-          def update(list) @fired = true end
-        end
-        observer
-      end
-
-      before do
+    describe '#before_selection' do
+      it 'should notify' do
+        fired = false
+        subject.before_selection { fired = true }
         subject.select('a')
-        subject.add_observer(observer)
+        fired.should be_true
       end
 
-      it 'should notify when new option selected' do
+      it 'should notify before new option selected' do
+        subject.select('a')
+        subject.before_selection { subject.selection.should == 'a' }
         subject.select('b')
-        observer.fired.should be_true
+      end
+    end
+
+    describe '#after_selection' do
+      it 'should notify' do
+        fired = false
+        subject.after_selection { fired = true }
+        subject.select('a')
+        fired.should be_true
       end
 
-      it 'should not notify when option already selected' do
+      it 'should notify before new option selected' do
         subject.select('a')
-        observer.fired.should be_false
+        subject.after_selection { subject.selection.should == 'b' }
+        subject.select('b')
       end
     end
   end

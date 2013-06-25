@@ -34,7 +34,7 @@ module Scraper
 
       def _select_all_list_combinations(lists_to_enumerate)
         list = lists_to_enumerate[0]
-        list.options.reverse.each do |option|
+        list.options.each do |option|
           list.select(option)
           if lists_to_enumerate.length > 1
             _select_all_list_combinations(lists_to_enumerate.slice(1..-1))

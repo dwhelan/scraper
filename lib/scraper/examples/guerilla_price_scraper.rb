@@ -29,38 +29,14 @@ module Scraper
         @prices
       end
 
-      def on_list_option_changed(list)
-        #puts "#{list.name} - selected #{list.selection}"
-        old_price = old_price_container
-        keep_waiting_prices = [old_price, LOADING_TEXT, '']
-        wait_until {
-          new_price = price_container
-
-          #TODO Does not handle situation where a new set of options has the same price as the previous set
-          keep_waiting = keep_waiting_prices.include?(new_price)
-          #puts "for #{lists.selections}; old_price=#{old_price}, new_price=#{new_price}; keep_waiting=#{keep_waiting}"
-          !keep_waiting
-        }
-        @old_price_container = price_container
-      rescue Timeout::Error
-        puts 'timeout warning - just using the last scraped value'
-      end
-
       def on_list_selections_complete(selections)
         @prices ||= {}
         @prices[selections] = price
-        #puts "saved price for #{selections}; price=#{@prices[selections]}"
       end
 
       private
 
-      attr_accessor :old_price_container
-
       LOADING_TEXT = ''
-
-      def old_price_container
-        @old_price_container ||= price_container
-      end
 
       def price_container
         @price_container_div = find('#updateDiv')
@@ -73,25 +49,31 @@ module Scraper
       end
 
       def lists
-        @lists ||=
-          begin
-            lists = Scraper::Elements::ListCollection.new
+        @lists || find_lists
+      end
 
-            all('div.attributeDiv').each do |attribute_div|
-              list = find_list(attribute_div)
-              list.add_observer(self, :on_list_option_changed)
-              lists.insert(list)
-            end
+      def find_lists
+        @lists = Scraper::Elements::ListCollection.new
 
-            lists.add_observer(self, :on_list_selections_complete)
-            lists
-          end
+        all('div.attributeDiv').each do |attribute_div|
+          @lists.insert(find_list(attribute_div))
+        end
+
+        @lists.add_observer(self, :on_list_selections_complete)
+        @lists
       end
 
       def find_list(attribute_div)
         name   = attribute_div.find('div.attributeName').text
         select = attribute_div.find('select.calcItem')
-        Scraper::Elements::List.new(name, select)
+        list = Scraper::Elements::List.new(name, select)
+
+        list.before_selection {
+          page.execute_script(%Q(document.getElementById("updateDiv").innerHTML = '<p>#{LOADING_TEXT}</p>')) }
+        list.after_selection  {
+          wait_until { price_container != LOADING_TEXT } }
+
+        list
       end
 
       def wait_until

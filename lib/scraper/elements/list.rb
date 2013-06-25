@@ -5,12 +5,18 @@ module Scraper
   module Elements
 
     class List
-      include Observable
-
       attr_reader :name, :list, :selection
       attr_accessor :max_options
 
       public
+
+      def before_selection(&block)
+        @before = block
+      end
+
+      def after_selection(&block)
+        @after = block
+      end
 
       def initialize(name, list)
         @name = name
@@ -23,17 +29,19 @@ module Scraper
       end
 
       def select(option)
-        previous_value = list.value
+        #puts list.find('option:selected')
+        #return if list.text == option
+        @before.call if @before
         list.select(option)
-
         @selection = option
-        if list.value != previous_value
-          changed
-          notify_observers(self)
-        end
+        @after.call if @after
       end
 
       private
+
+      def selected_option
+        list
+      end
 
       def scrape_options
         options = list.all('option').map { |option| option.text }.reject{|option| option =~ /\- *Select *\-/ }
