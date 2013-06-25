@@ -12,7 +12,7 @@ end
 Capybara.current_driver = :poltergeist
 Capybara.javascript_driver = :poltergeist
 
-#Capybara.current_driver = :selenium
+Capybara.current_driver = :selenium
 
 module Scraper
   module Examples

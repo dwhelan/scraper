@@ -24,12 +24,6 @@ module Scraper::Elements
       end
     end
 
-    describe '#max_options' do
-      describe('should default to Scraper configuration value') { its(:max_options) { should == Scraper.configuration.max_list_options }}
-      context('with max_options = 1')   { before {subject.max_options = 1};   its(:options) { should == %w(a) } }
-      context('with max_options = nil') { before {subject.max_options = nil}; its(:options) { should == %w(a b c) } }
-    end
-
     describe '#select' do
       before { subject.select('a') }
 
@@ -39,18 +33,27 @@ module Scraper::Elements
 
     end
 
-    describe '#text' do
+    describe '#selection' do
       before { subject.select('a') }
 
       its(:selection) { should == 'a' }
     end
 
     describe '#before_selection' do
-      it 'should notify' do
+      it 'should notify if new option selected' do
         fired = false
+        subject.select('a')
+        subject.before_selection { fired = true }
+        subject.select('b')
+        fired.should be_true
+      end
+
+      it 'should not notify if option already selected' do
+        fired = false
+        subject.select('a')
         subject.before_selection { fired = true }
         subject.select('a')
-        fired.should be_true
+        fired.should be_false
       end
 
       it 'should notify before new option selected' do
