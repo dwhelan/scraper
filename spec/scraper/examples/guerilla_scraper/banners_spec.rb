@@ -1,5 +1,6 @@
 require './spec/spec_helper'
 require './lib/scraper/examples/guerilla_price_scraper'
+require './lib/scraper/scrapers/capybara'
 
 module Scraper::Examples
 
@@ -14,7 +15,7 @@ module Scraper::Examples
         }}
         let(:price) { @prices[selections] }
 
-        before(:all) { @prices = GuerillaPriceScraper.new.scrape('13-oz.-banners') }
+        before(:all) { @prices = GuerillaPriceScraper.new.scrape('13-oz.-banners', Scraper::Scrapers::CapybaraScraper.new) }
 
         context('base price')                       {                                                              it { price.should == '$40.50' } }
         context('for a quantity of 2 price')        { before { selections['Quantity:'] = '2' };                    it { price.should == '$81.00' } }
