@@ -21,12 +21,13 @@ module Scraper
 
       include Capybara::DSL
 
-      def scrape(page_path, scraper)
+      def initialize(scraper)
         @scraper = scraper
-        Capybara.default_wait_time = 10
-        visit "http://www.guerillaprinting.ca/#{page_path}"
-        lists.select_all_list_combinations
+      end
 
+      def scrape(page_path)
+        @scraper.visit("http://www.guerillaprinting.ca/#{page_path}")
+        lists.select_all_list_combinations
         @prices
       end
 
@@ -59,16 +60,16 @@ module Scraper
         @lists.add_observer(self, :on_list_selections_complete)
 
         all('div.attributeDiv').each do |attribute_div|
-          @lists.insert(find_list(attribute_div))
+          @lists.insert(create_list(attribute_div))
         end
 
         @lists
       end
 
-      def find_list(attribute_div)
+      def create_list(attribute_div)
         name   = attribute_div.find('div.attributeName').text
         select = attribute_div.find('select.calcItem')
-        list = Scraper::Elements::List.new(name, select)
+        list   = Scraper::Elements::List.new(name, select)
 
         list.before_selection { page.execute_script(%Q(document.getElementById("updateDiv").innerHTML = '<p>#{LOADING_TEXT}</p>')) }
         list.after_selection  { scraper.wait_until { price_container != LOADING_TEXT } }
