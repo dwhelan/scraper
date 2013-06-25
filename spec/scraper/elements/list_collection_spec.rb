@@ -22,8 +22,8 @@ module Scraper::Elements
     let(:list2) { FakeList.new('list2', %w(x y)) }
 
     before do
-      subject.insert list2
-      subject.insert list1
+      subject << list1
+      subject << list2
     end
 
     describe '#selections' do
@@ -36,27 +36,13 @@ module Scraper::Elements
     end
 
     describe '#select_all_list_combinations' do
-      let(:observer) do
-        observer = Object.new
-
-        class << observer
-          attr_reader :fired
-          def update(selections) all_selections << selections end
-          def all_selections() @all_selections ||= [] end
-        end
-        observer
-      end
+      let(:all_selections) { [] }
 
       it 'should observe all list combinations being selected' do
-        subject.add_observer(observer)
+        subject.after_selection { all_selections << subject.selections }
         subject.select_all_list_combinations
-        observer.all_selections.should include {{ 'list1' => 'a', 'list2' => 'x' }}
-        #  { 'list1' => 'a', 'list2' => 'y' },
-        #  { 'list1' => 'b', 'list2' => 'x' },
-        #  { 'list1' => 'b', 'list2' => 'y' },
-        #]
+        all_selections.should include {{ 'list1' => 'a', 'list2' => 'x' }}
       end
     end
-
   end
 end

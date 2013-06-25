@@ -1,39 +1,20 @@
-require './lib/scraper/elements/list'
-require './lib/scraper/elements/list_collection'
-require 'capybara'
-
-
-require 'capybara/poltergeist'
-
-Capybara.register_driver :poltergeist do |app|
-  Capybara::Poltergeist::Driver.new(app, {debug: false})
-end
-
-Capybara.current_driver = :poltergeist
-Capybara.javascript_driver = :poltergeist
-
-#Capybara.current_driver = :selenium
+require_relative '../scraper'
 
 module Scraper
   module Examples
 
     class GuerillaPriceScraper
 
-      include Capybara::DSL
+      attr_reader :price_list
 
       def initialize(scraper)
         @scraper = scraper
-        @prices = {}
+        @price_list = {}
       end
 
       def scrape(page_path)
         scraper.visit("http://www.guerillaprinting.ca/#{page_path}")
         create_lists.select_all_list_combinations
-        @prices
-      end
-
-      def on_list_selections_complete(selections)
-        @prices[selections] = price
       end
 
       private
@@ -42,21 +23,12 @@ module Scraper
 
       LOADING_TEXT = ''
 
-      def price_container
-        @price_container_div ||= scraper.find('#updateDiv')
-        @price_container_div.text
-      end
-
-      def price
-        scraper.find('div#total div.calcPrice').text
-      end
-
       def create_lists
         lists = Scraper::Elements::ListCollection.new
-        lists.add_observer(self, :on_list_selections_complete)
+        lists.after_selection { @price_list[lists.selections] = price }
 
         scraper.find_all('div.attributeDiv').each do |attribute_div|
-          lists.insert(create_list(attribute_div))
+          lists << create_list(attribute_div)
         end
 
         lists
@@ -67,10 +39,19 @@ module Scraper
         select = attribute_div.find('select.calcItem')
         list   = Scraper::Elements::List.new(name, select)
 
-        list.before_selection { page.execute_script(%Q(document.getElementById("updateDiv").innerHTML = '<p>#{LOADING_TEXT}</p>')) }
+        list.before_selection { scraper.execute_script(%Q(document.getElementById("updateDiv").innerHTML = '#{LOADING_TEXT}')) }
         list.after_selection  { scraper.wait_until { price_container != LOADING_TEXT } }
 
         list
+      end
+
+      def price_container
+        @price_container_div ||= scraper.find('#updateDiv')
+        @price_container_div.text
+      end
+
+      def price
+        scraper.find('div#total div.calcPrice').text
       end
 
     end

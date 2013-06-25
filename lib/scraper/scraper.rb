@@ -1,4 +1,5 @@
-require './lib/scraper/configuration.rb'
+require_relative 'configuration'
+require_relative 'elements'
 
 module Scraper
 

@@ -1,24 +1,41 @@
 require 'capybara'
+require 'capybara/poltergeist'
 require 'timeout'
+
+Capybara.register_driver :poltergeist do |app|
+  Capybara::Poltergeist::Driver.new(app, {debug: false})
+end
+
+Capybara.current_driver    = :poltergeist
+Capybara.javascript_driver = :poltergeist
+Capybara.default_wait_time = 10
+
+#Capybara.current_driver = :selenium
 
 module Scraper
   module Scrapers
     class CapybaraScraper
 
-      def initialize
-        Capybara.default_wait_time = 10
+      include Capybara::DSL
+
+      def initialize(driver_name)
+        Capybara.current_driver = driver_name
       end
 
       def visit(url)
-        Capybara.visit(url)
+        page.visit(url)
       end
 
       def find(*args)
-        Capybara.find(*args)
+        page.find(*args)
       end
 
       def find_all(*args)
-        Capybara.all(*args)
+        page.all(*args)
+      end
+
+      def execute_script(*args)
+        page.execute_script(*args)
       end
 
       def wait_until

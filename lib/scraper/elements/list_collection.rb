@@ -6,20 +6,16 @@ module Scraper
 
     class ListCollection
 
-      include Observable
-
-      private
-
-      attr_reader :lists
-
-      public
-
       def initialize
         @lists = []
       end
 
-      def insert(list)
-        @lists.insert(0, list)
+      def after_selection(&block)
+        @after = block
+      end
+
+      def << (list)
+        @lists << list
       end
 
       def select_all_list_combinations
@@ -32,6 +28,8 @@ module Scraper
 
       private
 
+      attr_reader :lists
+
       def _select_all_list_combinations(lists_to_enumerate)
         list = lists_to_enumerate[0]
         list.options.each do |option|
@@ -39,8 +37,7 @@ module Scraper
           if lists_to_enumerate.length > 1
             _select_all_list_combinations(lists_to_enumerate.slice(1..-1))
           else
-            changed
-            notify_observers(selections)
+            @after.call if @after
           end
         end
       end
