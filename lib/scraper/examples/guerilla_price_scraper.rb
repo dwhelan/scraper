@@ -23,16 +23,16 @@ module Scraper
 
       def initialize(scraper)
         @scraper = scraper
+        @prices = {}
       end
 
       def scrape(page_path)
-        @scraper.visit("http://www.guerillaprinting.ca/#{page_path}")
-        lists.select_all_list_combinations
+        scraper.visit("http://www.guerillaprinting.ca/#{page_path}")
+        create_lists.select_all_list_combinations
         @prices
       end
 
       def on_list_selections_complete(selections)
-        @prices ||= {}
         @prices[selections] = price
       end
 
@@ -43,27 +43,23 @@ module Scraper
       LOADING_TEXT = ''
 
       def price_container
-        @price_container_div ||= find('#updateDiv')
+        @price_container_div ||= scraper.find('#updateDiv')
         @price_container_div.text
       end
 
       def price
-        find('div#total div.calcPrice').text
-      end
-
-      def lists
-        @lists || create_lists
+        scraper.find('div#total div.calcPrice').text
       end
 
       def create_lists
-        @lists = Scraper::Elements::ListCollection.new
-        @lists.add_observer(self, :on_list_selections_complete)
+        lists = Scraper::Elements::ListCollection.new
+        lists.add_observer(self, :on_list_selections_complete)
 
-        all('div.attributeDiv').each do |attribute_div|
-          @lists.insert(create_list(attribute_div))
+        scraper.find_all('div.attributeDiv').each do |attribute_div|
+          lists.insert(create_list(attribute_div))
         end
 
-        @lists
+        lists
       end
 
       def create_list(attribute_div)
