@@ -1,5 +1,6 @@
-require_relative 'configuration'
-require_relative 'elements'
+require_relative 'scraper/configuration'
+require_relative 'scraper/elements'
+require_relative 'scraper/scrapers'
 
 module Scraper
 

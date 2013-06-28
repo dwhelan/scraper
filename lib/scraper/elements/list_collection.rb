@@ -1,6 +1,3 @@
-require 'capybara'
-require 'observer'
-
 module Scraper
   module Elements
 

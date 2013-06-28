@@ -1,6 +1,6 @@
-require './spec/spec_helper'
-require './lib/scraper/examples/guerilla_price_scraper'
-require './lib/scraper/scrapers/capybara'
+require_relative '../../../../lib/scraper'
+require_relative '../../../../lib/scraper/examples/guerilla_price_scraper'
+require_relative '../../../spec_helper'
 
 module Scraper::Examples
 

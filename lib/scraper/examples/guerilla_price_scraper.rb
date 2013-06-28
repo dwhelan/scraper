@@ -1,4 +1,4 @@
-require_relative '../scraper'
+require_relative '../../scraper'
 
 module Scraper
   module Examples

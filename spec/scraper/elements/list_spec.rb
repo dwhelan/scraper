@@ -1,5 +1,5 @@
-require './lib/scraper/elements/list'
-require './spec/spec_helper'
+require_relative '../../../lib/scraper/elements/list'
+require_relative '../../spec_helper'
 require 'observer'
 
 module Scraper::Elements
