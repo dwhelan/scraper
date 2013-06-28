@@ -1,6 +1,4 @@
-require_relative '../../../lib/scraper/elements/list'
 require_relative '../../spec_helper'
-require 'observer'
 
 module Scraper::Elements
 

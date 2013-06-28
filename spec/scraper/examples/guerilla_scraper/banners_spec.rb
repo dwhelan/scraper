@@ -1,14 +1,13 @@
-require_relative '../../../../lib/scraper'
 require_relative '../../../../lib/scraper/examples/guerilla_price_scraper'
 require_relative '../../../spec_helper'
 
 module Scraper::Examples
 
-  describe GuerillaPriceScraper, :vcr do
+  describe GuerillaPriceScraper do
 
     [:selenium, :poltergeist].each do |driver_name|
 
-      describe " #{driver_name} banners", :vcr do
+      describe " #{driver_name} banners" do
 
         let(:selections) {{
           'Quantity:'  => '1',

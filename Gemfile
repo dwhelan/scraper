@@ -1,10 +1,11 @@
 source 'https://rubygems.org'
+
 gem 'capybara'
-gem "capybara-webkit"
-gem 'fakeweb'
-gem 'json'
 gem 'poltergeist'
 gem 'rake'
 gem 'rspec'
 gem 'selenium-webdriver'
-gem 'vcr'
+
+group :test, :development do
+  gem 'rspec'
+end
